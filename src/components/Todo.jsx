@@ -1,7 +1,7 @@
 import React from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 
-const Todo = ({ todo, toggleComplete }) => {
+const Todo = ({ todo, toggleComplete, deleteTodo }) => {
   return (
     <li
       className={
@@ -28,7 +28,10 @@ const Todo = ({ todo, toggleComplete }) => {
           {todo.text}
         </p>
       </div>
-      <button className="cursor-pointer flex items-center">
+      <button
+        onClick={() => deleteTodo(todo.id)}
+        className="cursor-pointer flex items-center"
+      >
         <FaRegTrashAlt />
       </button>
     </li>
