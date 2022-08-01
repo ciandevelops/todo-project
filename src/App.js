@@ -2,12 +2,32 @@ import { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import Todo from "./components/Todo";
 import { db } from "./firebase";
-import { query, collection, onSnapshot } from "firebase/firestore";
+import {
+  query,
+  collection,
+  onSnapshot,
+  updateDoc,
+  doc,
+  addDoc,
+} from "firebase/firestore";
 
 function App() {
   const [todos, setTodos] = useState([]);
+  const [input, setInput] = useState("");
 
   //create todo
+  const createTodo = async (e) => {
+    e.preventDefault(e);
+    if (input === "") {
+      alert("Please Enter a Valid Todo");
+      return;
+    }
+    await addDoc(collection(db, "todos"), {
+      text: input,
+      completed: false,
+    });
+    setInput("");
+  };
 
   //read todo from firebase
   useEffect(() => {
@@ -23,6 +43,11 @@ function App() {
   }, []);
 
   //update todo from firebase
+  const toggleComplete = async (todo) => {
+    await updateDoc(doc(db, "todos", todo.id), {
+      completed: !todo.completed,
+    });
+  };
 
   //delete todo
 
@@ -32,11 +57,13 @@ function App() {
         <h3 className="text-3xl font-bold text-center text-gray-800 p-2">
           Todo App
         </h3>
-        <form className="flex justify-between">
+        <form onSubmit={createTodo} className="flex justify-between">
           <input
             className="border p-2 w-full text-xl"
             type="text"
             placeholder="Add Todo"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
           />
           <button className="border p-4 ml-2 bg-purple-500 shadow-sm text-slate-100">
             <AiOutlinePlus size={30} />
@@ -45,10 +72,12 @@ function App() {
 
         <ul>
           {todos.map((todo, index) => (
-            <Todo key={index} todo={todo} />
+            <Todo key={index} todo={todo} toggleComplete={toggleComplete} />
           ))}
         </ul>
-        <p className="text-center p-2">You have 2 todos</p>
+        {todos.length < 1 ? null : (
+          <p className="text-center p-2">{`You have ${todos.length} todos`}</p>
+        )}
       </div>
     </div>
   );
