@@ -1,13 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import Todo from "./components/Todo";
+import { db } from "./firebase";
+import { query, collection, onSnapshot } from "firebase/firestore";
 
 function App() {
-  const [todos, setTodos] = useState(["Learn React", "Grind Leetcode"]);
+  const [todos, setTodos] = useState([]);
 
   //create todo
 
   //read todo from firebase
+  useEffect(() => {
+    const q = query(collection(db, "todos"));
+    const unsubsribe = onSnapshot(q, (querySnapshot) => {
+      let todosArr = [];
+      querySnapshot.forEach((doc) => {
+        todosArr.push({ ...doc.data(), id: doc.id });
+      });
+      setTodos(todosArr);
+    });
+    return () => unsubsribe();
+  }, []);
 
   //update todo from firebase
 
